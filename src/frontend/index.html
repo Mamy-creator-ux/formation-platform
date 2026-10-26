@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plateforme de Formation - Travail en Ligne</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+    
+    /* Header */
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.5rem; }
+    .header-actions { display: flex; gap: 1rem; align-items: center; }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+    .btn-primary { background: #e94560; color: white; }
+    .btn-primary:hover { background: #d63a55; }
+    .btn-secondary { background: #16213e; color: white; border: 1px solid #e94560; }
+    
+    /* Main */
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    
+    /* Phone verification */
+    .verification-container { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+    .verification-container h2 { margin-bottom: 1.5rem; color: #1a1a2e; text-align: center; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; }
+    .form-group input:focus { outline: none; border-color: #e94560; }
+    .error { color: #e94560; font-size: 0.875rem; margin-top: 0.5rem; }
+    .success { color: #27ae60; font-size: 0.875rem; margin-top: 0.5rem; }
+    
+    /* Videos grid */
+    .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .videos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .video-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .video-card:hover { transform: translateY(-4px); }
+    .video-thumbnail { width: 100%; height: 180px; background: #1a1a2e; display: flex; align-items: center; justify-content: center; color: white; }
+    .video-thumbnail video { width: 100%; height: 100%; object-fit: cover; }
+    .video-info { padding: 1rem; }
+    .video-info h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: #1a1a2e; }
+    .video-info p { color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .video-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #999; }
+    
+    /* Contacts */
+    .contacts-section { margin-top: 3rem; }
+    .contacts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+    .contact-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
+    .contact-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .contact-card h3 { color: #1a1a2e; margin-bottom: 0.5rem; }
+    .contact-card a { color: #e94560; text-decoration: none; }
+    .contact-card a:hover { text-decoration: underline; }
+    
+    /* Admin Panel */
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; }
+    .admin-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #eee; }
+    .admin-tab { padding: 0.75rem 1.5rem; background: none; border: none; cursor: pointer; font-weight: 500; color: #666; border-bottom: 2px solid transparent; }
+    .admin-tab.active { color: #e94560; border-bottom-color: #e94560; }
+    .admin-content { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .admin-form { display: grid; gap: 1rem; max-width: 600px; }
+    .admin-form textarea { min-height: 100px; }
+    .video-list { display: flex; flex-direction: column; gap: 1rem; }
+    .video-list-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #fafafa; border-radius: 8px; }
+    .video-list-item h4 { color: #1a1a2e; }
+    .video-list-actions { display: flex; gap: 0.5rem; }
+    .btn-danger { background: #e94560; color: white; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.875rem; }
+    
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; }
+    
+    /* Video player modal */
+    .video-player-modal { max-width: 900px; }
+    .video-player-modal video { width: 100%; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎓 Formation Travail en Ligne</h1>
+    <div class="header-actions">
+      <button class="btn btn-secondary" id="adminLoginBtn">Admin</button>
+      <button class="btn btn-primary" id="accessSiteBtn">Accéder au site</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Phone Verification -->
+    <section id="verificationSection" class="verification-container">
+      <h2>📱 Accès à la plateforme</h2>
+      <p style="text-align: center; margin-bottom: 1.5rem; color: #666;">Entrez votre numéro de téléphone pour recevoir un code d'accès unique</p>
+      
+      <div id="phoneStep">
+        <div class="form-group">
+          <label for="phoneInput">Numéro de téléphone</label>
+          <input type="tel" id="phoneInput" placeholder="Ex: 0388517134" required>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" id="requestOtpBtn">Envoyer le code</button>
+        <div id="phoneError" class="error" style="display: none;"></div>
+      </div>
+      
+      <div id="otpStep" style="display: none;">
+        <div class="form-group">
+          <label for="otpInput">Code à 6 chiffres</label>
+          <input type="text" id="otpInput" placeholder="Entrez le code" maxlength="6" required>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" id="verifyOtpBtn">Vérifier</button>
+        <button class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;" id="backToPhoneBtn">Changer le numéro</button>
+        <div id="otpError" class="error" style="display: none;"></div>
+        <div id="otpSuccess" class="success" style="display: none;"></div>
+      </div>
+    </section>
+
+    <!-- Videos Section -->
+    <section id="videosSection" style="display: none;">
+      <div class="section-title">
+        <h2>📚 Vidéos de formation</h2>
+        <button class="btn btn-primary" id="addVideoBtn" style="display: none;">Ajouter vidéo</button>
+      </div>
+      <div id="videosGrid" class="videos-grid"></div>
+      <div id="noVideos" style="text-align: center; padding: 3rem; color: #999; display: none;">
+        Aucune vidéo disponible pour le moment.
+      </div>
+    </section>
+
+    <!-- Contacts Section -->
+    <section class="contacts-section">
+      <h2 class="section-title">📞 Contact des responsables</h2>
+      <div id="contactsGrid" class="contacts-grid"></div>
+    </section>
+  </main>
+
+  <!-- Admin Login Modal -->
+  <div class="modal" id="adminLoginModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Connexion Admin</h2>
+        <button class="modal-close" id="closeAdminLogin">&times;</button>
+      </div>
+      <div class="admin-form">
+        <div class="form-group">
+          <label for="adminEmail">Email</label>
+          <input type="email" id="adminEmail" placeholder="mamyherver@gmail.com">
+        </div>
+        <div class="form-group">
+          <label for="adminPassword">Mot de passe</label>
+          <input type="password" id="adminPassword" placeholder="Mot de passe">
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" id="adminLoginSubmit">Se connecter</button>
+        <div id="adminLoginError" class="error" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <section id="adminPanel" class="admin-panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2>👨‍💼 Panneau d'administration</h2>
+      <button class="btn btn-secondary" id="logoutAdmin">Déconnexion</button>
+    </div>
+    
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="videos">Vidéos</button>
+      <button class="admin-tab" data-tab="contacts">Contacts</button>
+    </div>
+    
+    <div class="admin-content">
+      <!-- Videos Tab -->
+      <div id="tab-videos" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3>Gestion des vidéos</h3>
+          <button class="btn btn-primary" id="openAddVideoModal">+ Ajouter une vidéo</button>
+        </div>
+        <div id="adminVideosList" class="video-list"></div>
+      </div>
+      
+      <!-- Contacts Tab -->
+      <div id="tab-contacts" class="tab-content" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3>Gestion des contacts</h3>
+          <button class="btn btn-primary" id="openAddContactModal">+ Ajouter un contact</button>
+        </div>
+        <div id="adminContactsList" class="video-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Add/Edit Video Modal -->
+  <div class="modal" id="videoModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="videoModalTitle">Ajouter une vidéo</h2>
+        <button class="modal-close" id="closeVideoModal">&times;</button>
+      </div>
+      <form id="videoForm" class="admin-form">
+        <input type="hidden" id="videoId">
+        <div class="form-group">
+          <label for="videoTitle">Titre *</label>
+          <input type="text" id="videoTitle" required>
+        </div>
+        <div class="form-group">
+          <label for="videoDescription">Description</label>
+          <textarea id="videoDescription"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="videoUrl">URL de la vidéo *</label>
+          <input type="url" id="videoUrl" placeholder="https://..." required>
+        </div>
+        <div class="form-group">
+          <label for="videoThumbnail">URL de la miniature</label>
+          <input type="url" id="videoThumbnail" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label for="videoDuration">Durée (secondes)</label>
+          <input type="number" id="videoDuration" min="0">
+        </div>
+        <div class="form-group">
+          <label for="videoCategory">Catégorie</label>
+          <input type="text" id="videoCategory" placeholder="Ex: Développement, Design, Marketing">
+        </div>
+        <div class="form-group" id="videoActiveGroup" style="display: none;">
+          <label style="display: flex; align-items: center; gap: 0.5rem;">
+            <input type="checkbox" id="videoActive" checked> Actif
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add/Edit Contact Modal -->
+  <div class="modal" id="contactModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="contactModalTitle">Ajouter un contact</h2>
+        <button class="modal-close" id="closeContactModal">&times;</button>
+      </div>
+      <form id="contactForm" class="admin-form">
+        <input type="hidden" id="contactId">
+        <div class="form-group">
+          <label for="contactType">Type *</label>
+          <select id="contactType" required>
+            <option value="phone">📞 Téléphone</option>
+            <option value="email">📧 Email</option>
+            <option value="facebook">📘 Facebook</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="contactValue">Valeur *</label>
+          <input type="text" id="contactValue" required>
+        </div>
+        <div class="form-group">
+          <label for="contactLabel">Libellé</label>
+          <input type="text" id="contactLabel" placeholder="Ex: Téléphone principal">
+        </div>
+        <div class="form-group">
+          <label for="contactOrder">Ordre d'affichage</label>
+          <input type="number" id="contactOrder" value="0" min="0">
+        </div>
+        <div class="form-group" id="contactActiveGroup" style="display: none;">
+          <label style="display: flex; align-items: center; gap: 0.5rem;">
+            <input type="checkbox" id="contactActive" checked> Actif
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Video Player Modal -->
+  <div class="modal" id="videoPlayerModal">
+    <div class="modal-content video-player-modal">
+      <div class="modal-header">
+        <h2 id="playerVideoTitle">Lecture vidéo</h2>
+        <button class="modal-close" id="closeVideoPlayer">&times;</button>
+      </div>
+      <video id="videoPlayer" controls></video>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = ''
+    let authToken = null
+    let isAdmin = false
+    let currentPhone = ''
+
+    // DOM Elements
+    const verificationSection = document.getElementById('verificationSection')
+    const videosSection = document.getElementById('videosSection')
+    const phoneStep = document.getElementById('phoneStep')
+    const otpStep = document.getElementById('otpStep')
+    const phoneInput = document.getElementById('phoneInput')
+    const otpInput = document.getElementById('otpInput')
+    const requestOtpBtn = document.getElementById('requestOtpBtn')
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn')
+    const backToPhoneBtn = document.getElementById('backToPhoneBtn')
+    const phoneError = document.getElementById('phoneError')
+    const otpError = document.getElementById('otpError')
+    const otpSuccess = document.getElementById('otpSuccess')
+    const videosGrid = document.getElementById('videosGrid')
+    const noVideos = document.getElementById('noVideos')
+    const contactsGrid = document.getElementById('contactsGrid')
+    const addVideoBtn = document.getElementById('addVideoBtn')
+    
+    // Admin elements
+    const adminLoginBtn = document.getElementById('adminLoginBtn')
+    const adminLoginModal = document.getElementById('adminLoginModal')
+    const closeAdminLogin = document.getElementById('closeAdminLogin')
+    const adminEmail = document.getElementById('adminEmail')
+    const adminPassword = document.getElementById('adminPassword')
+    const adminLoginSubmit = document.getElementById('adminLoginSubmit')
+    const adminLoginError = document.getElementById('adminLoginError')
+    const adminPanel = document.getElementById('adminPanel')
+    const logoutAdmin = document.getElementById('logoutAdmin')
+    const adminTabs = document.querySelectorAll('.admin-tab')
+    const tabContents = document.querySelectorAll('.tab-content')
+    const adminVideosList = document.getElementById('adminVideosList')
+    const adminContactsList = document.getElementById('adminContactsList')
+    const openAddVideoModal = document.getElementById('openAddVideoModal')
+    const openAddContactModal = document.getElementById('openAddContactModal')
+    
+    // Video modal
+    const videoModal = document.getElementById('videoModal')
+    const closeVideoModal = document.getElementById('closeVideoModal')
+    const videoForm = document.getElementById('videoForm')
+    const videoModalTitle = document.getElementById('videoModalTitle')
+    const videoId = document.getElementById('videoId')
+    const videoTitle = document.getElementById('videoTitle')
+    const videoDescription = document.getElementById('videoDescription')
+    const videoUrl = document.getElementById('videoUrl')
+    const videoThumbnail = document.getElementById('videoThumbnail')
+    const videoDuration = document.getElementById('videoDuration')
+    const videoCategory = document.getElementById('videoCategory')
+    const videoActiveGroup = document.getElementById('videoActiveGroup')
+    const videoActive = document.getElementById('videoActive')
+    
+    // Contact modal
+    const contactModal = document.getElementById('contactModal')
+    const closeContactModal = document.getElementById('closeContactModal')
+    const contactForm = document.getElementById('contactForm')
+    const contactModalTitle = document.getElementById('contactModalTitle')
+    const contactId = document.getElementById('contactId')
+    const contactType = document.getElementById('contactType')
+    const contactValue = document.getElementById('contactValue')
+    const contactLabel = document.getElementById('contactLabel')
+    const contactOrder = document.getElementById('contactOrder')
+    const contactActiveGroup = document.getElementById('contactActiveGroup')
+    const contactActive = document.getElementById('contactActive')
+    
+    // Video player modal
+    const videoPlayerModal = document.getElementById('videoPlayerModal')
+    const closeVideoPlayer = document.getElementById('closeVideoPlayer')
+    const videoPlayer = document.getElementById('videoPlayer')
+    const playerVideoTitle = document.getElementById('playerVideoTitle')
+
+    // API Helper
+    async function api(endpoint, options = {}) {
+      const headers = { 'Content-Type': 'application/json', ...options.headers }
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`
+      
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers
+      })
+      
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Erreur serveur')
+      return data
+    }
+
+    // Show/hide helpers
+    function show(element) { element.style.display = 'block' }
+    function hide(element) { element.style.display = 'none' }
+    function showError(element, message) { element.textContent = message; show(element) }
+    function hideError(element) { hide(element) }
+
+    // Load videos
+    async function loadVideos(adminView = false) {
+      try {
+        const endpoint = adminView ? '/api/admin/videos' : '/api/videos'
+        const { videos } = await api(endpoint)
+        
+        if (adminView) {
+          renderAdminVideos(videos)
+        } else {
+          renderPublicVideos(videos)
+        }
+      } catch (error) {
+        console.error('Error loading videos:', error)
+      }
+    }
+
+    function renderPublicVideos(videos) {
+      if (videos.length === 0) {
+        hide(videosGrid)
+        show(noVideos)
+        return
+      }
+      
+      hide(noVideos)
+      show(videosGrid)
+      videosGrid.innerHTML = videos.map(video => `
+        <div class="video-card" data-id="${video.id}">
+          <div class="video-thumbnail">
+            ${video.thumbnail_url ? `<img src="${video.thumbnail_url}" alt="${video.title}" style="width:100%;height:100%;object-fit:cover;">` : 
+              (video.video_url.includes('youtube') || video.video_url.includes('vimeo') ? 
+                `<iframe src="${video.video_url}" frameborder="0" allowfullscreen style="width:100%;height:100%;"></iframe>` :
+                `<video src="${video.video_url}" muted loop playsinline></video>`
+              )
+            }
+          </div>
+          <div class="video-info">
+            <h3>${video.title}</h3>
+            ${video.description ? `<p>${video.description}</p>` : ''}
+            <div class="video-meta">
+              <span>${video.category || 'Général'}</span>
+              <span>${video.duration_seconds ? formatDuration(video.duration_seconds) : ''}</span>
+            </div>
+          </div>
+        </div>
+      `).join('')
+      
+      // Add click handlers
+      document.querySelectorAll('.video-card').forEach(card => {
+        card.addEventListener('click', () => openVideoPlayer(card.dataset.id))
+      })
+    }
+
+    function renderAdminVideos(videos) {
+      adminVideosList.innerHTML = videos.map(video => `
+        <div class="video-list-item">
+          <div>
+            <h4>${video.title}</h4>
+            <small style="color: #999;">${video.category || 'Général'} • ${formatDate(video.created_at)} • ${video.is_active ? '✅ Actif' : '❌ Inactif'}</small>
+          </div>
+          <div class="video-list-actions">
+            <button class="btn btn-secondary btn-sm edit-video" data-id="${video.id}">Modifier</button>
+            <button class="btn btn-danger btn-sm delete-video" data-id="${video.id}">Supprimer</button>
+          </div>
+        </div>
+      `).join('')
+      
+      // Add handlers
+      document.querySelectorAll('.edit-video').forEach(btn => {
+        btn.addEventListener('click', () => openVideoModal(btn.dataset.id))
+      })
+      document.querySelectorAll('.delete-video').forEach(btn => {
+        btn.addEventListener('click', () => deleteVideo(btn.dataset.id))
+      })
+    }
+
+    // Load contacts
+    async function loadContacts(adminView = false) {
+      try {
+        const endpoint = adminView ? '/api/admin/contacts' : '/api/contacts'
+        const { contacts } = await api(endpoint)
+        
+        if (adminView) {
+          renderAdminContacts(contacts)
+        } else {
+          renderPublicContacts(contacts)
+        }
+      } catch (error) {
+        console.error('Error loading contacts:', error)
+      }
+    }
+
+    function renderPublicContacts(contacts) {
+      contactsGrid.innerHTML = contacts.map(contact => {
+        let icon = '📞'
+        let href = contact.value
+        if (contact.type === 'email') { icon = '📧'; href = `mailto:${contact.value}` }
+        else if (contact.type === 'facebook') { icon = '📘' }
+        
+        return `
+          <div class="contact-card">
+            <div class="contact-icon">${icon}</div>
+            <h3>${contact.label || contact.type}</h3>
+            <a href="${href}" target="_blank" rel="noopener">${contact.value}</a>
+          </div>
+        `}).join('')
+    }
+
+    function renderAdminContacts(contacts) {
+      adminContactsList.innerHTML = contacts.map(contact => `
+        <div class="video-list-item">
+          <div>
+            <h4>${contact.label || contact.type}</h4>
+            <small style="color: #999;">${contact.type} • ${contact.value} • ${contact.is_active ? '✅ Actif' : '❌ Inactif'}</small>
+          </div>
+          <div class="video-list-actions">
+            <button class="btn btn-secondary btn-sm edit-contact" data-id="${contact.id}">Modifier</button>
+            <button class="btn btn-danger btn-sm delete-contact" data-id="${contact.id}">Supprimer</button>
+          </div>
+        </div>
+      `).join('')
+      
+      document.querySelectorAll('.edit-contact').forEach(btn => {
+        btn.addEventListener('click', () => openContactModal(btn.dataset.id))
+      })
+      document.querySelectorAll('.delete-contact').forEach(btn => {
+        btn.addEventListener('click', () => deleteContact(btn.dataset.id))
+      })
+    }
+
+    // Video player
+    async function openVideoPlayer(videoId) {
+      try {
+        const { video } = await api(`/api/videos/${videoId}`)
+        playerVideoTitle.textContent = video.title
+        videoPlayer.src = video.video_url
+        show(videoPlayerModal)
+        videoPlayer.play()
+      } catch (error) {
+        alert('Erreur lors du chargement de la vidéo')
+      }
+    }
+
+    // OTP Flow
+    requestOtpBtn.addEventListener('click', async () => {
+      const phone = phoneInput.value.trim()
+      if (!phone) return showError(phoneError, 'Veuillez entrer un numéro de téléphone')
+      
+      hideError(phoneError)
+      requestOtpBtn.disabled = true
+      requestOtpBtn.textContent = 'Envoi...'
+      
+      try {
+        await api('/api/auth/request-otp', {
+          method: 'POST',
+          body: JSON.stringify({ phone_number: phone })
+        })
+        currentPhone = phone
+        hide(phoneStep)
+        show(otpStep)
+        otpInput.focus()
+      } catch (error) {
+        showError(phoneError, error.message)
+      } finally {
+        requestOtpBtn.disabled = false
+        requestOtpBtn.textContent = 'Envoyer le code'
+      }
+    })
+
+    verifyOtpBtn.addEventListener('click', async () => {
+      const code = otpInput.value.trim()
+      if (!code || code.length !== 6) return showError(otpError, 'Code invalide (6 chiffres)')
+      
+      hideError(otpError)
+      hide(otpSuccess)
+      verifyOtpBtn.disabled = true
+      verifyOtpBtn.textContent = 'Vérification...'
+      
+      try {
+        const { token, message } = await api('/api/auth/verify-otp', {
+          method: 'POST',
+          body: JSON.stringify({ phone_number: currentPhone, code })
+        })
+        authToken = token
+        localStorage.setItem('authToken', token)
+        show(otpSuccess)
+        otpSuccess.textContent = message
+        
+        setTimeout(() => {
+          hide(verificationSection)
+          show(videosSection)
+          loadVideos()
+          loadContacts()
+        }, 1000)
+      } catch (error) {
+        showError(otpError, error.message)
+      } finally {
+        verifyOtpBtn.disabled = false
+        verifyOtpBtn.textContent = 'Vérifier'
+      }
+    })
+
+    backToPhoneBtn.addEventListener('click', () => {
+      show(phoneStep)
+      hide(otpStep)
+      hideError(otpError)
+      hide(otpSuccess)
+      otpInput.value = ''
+    })
+
+    // Check for existing token
+    const savedToken = localStorage.getItem('authToken')
+    if (savedToken) {
+      authToken = savedToken
+      hide(verificationSection)
+      show(videosSection)
+      loadVideos()
+      loadContacts()
+    }
+
+    // Admin Login
+    adminLoginBtn.addEventListener('click', () => show(adminLoginModal))
+    closeAdminLogin.addEventListener('click', () => hide(adminLoginModal))
+    
+    adminLoginSubmit.addEventListener('click', async () => {
+      const email = adminEmail.value.trim()
+      const password = adminPassword.value
+      
+      if (!email || !password) return showError(adminLoginError, 'Email et mot de passe requis')
+      
+      hideError(adminLoginError)
+      adminLoginSubmit.disabled = true
+      adminLoginSubmit.textContent = 'Connexion...'
+      
+      try {
+        const { token, admin } = await api('/api/admin/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        })
+        authToken = token
+        localStorage.setItem('authToken', token)
+        isAdmin = true
+        hide(adminLoginModal)
+        show(adminPanel)
+        adminEmail.value = ''
+        adminPassword.value = ''
+        loadVideos(true)
+        loadContacts(true)
+      } catch (error) {
+        showError(adminLoginError, error.message)
+      } finally {
+        adminLoginSubmit.disabled = false
+        adminLoginSubmit.textContent = 'Se connecter'
+      }
+    })
+
+    logoutAdmin.addEventListener('click', () => {
+      authToken = null
+      isAdmin = false
+      localStorage.removeItem('authToken')
+      hide(adminPanel)
+      show(verificationSection)
+      hide(videosSection)
+    })
+
+    // Admin tabs
+    adminTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        adminTabs.forEach(t => t.classList.remove('active'))
+        tabContents.forEach(c => hide(c))
+        tab.classList.add('active')
+        show(document.getElementById(`tab-${tab.dataset.tab}`))
+      })
+    })
+
+    // Video Modal
+    function openVideoModal(id = null) {
+      const isEdit = !!id
+      videoModalTitle.textContent = isEdit ? 'Modifier la vidéo' : 'Ajouter une vidéo'
+      videoForm.reset()
+      videoId.value = id || ''
+      videoActiveGroup.style.display = isEdit ? 'flex' : 'none'
+      
+      if (isEdit) {
+        // Fetch video data
+        api(`/api/admin/videos`).then(({ videos }) => {
+          const video = videos.find(v => v.id === id)
+          if (video) {
+            videoTitle.value = video.title
+            videoDescription.value = video.description || ''
+            videoUrl.value = video.video_url
+            videoThumbnail.value = video.thumbnail_url || ''
+            videoDuration.value = video.duration_seconds || ''
+            videoCategory.value = video.category || ''
+            videoActive.checked = video.is_active
+          }
+        })
+      }
+      show(videoModal)
+    }
+
+    closeVideoModal.addEventListener('click', () => hide(videoModal))
+    openAddVideoModal.addEventListener('click', () => openVideoModal())
+    addVideoBtn.addEventListener('click', () => openVideoModal())
+
+    videoForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const id = videoId.value
+      const data = {
+        title: videoTitle.value,
+        description: videoDescription.value,
+        video_url: videoUrl.value,
+        thumbnail_url: videoThumbnail.value || null,
+        duration_seconds: videoDuration.value ? parseInt(videoDuration.value) : null,
+        category: videoCategory.value || null
+      }
+      
+      if (id) data.is_active = videoActive.checked
+      
+      try {
+        if (id) {
+          await api(`/api/admin/videos/${id}`, { method: 'PUT', body: JSON.stringify(data) })
+        } else {
+          await api('/api/admin/videos', { method: 'POST', body: JSON.stringify(data) })
+        }
+        hide(videoModal)
+        loadVideos(true)
+        loadVideos(false)
+      } catch (error) {
+        alert(error.message)
+      }
+    })
+
+    async function deleteVideo(id) {
+      if (!confirm('Supprimer cette vidéo ?')) return
+      try {
+        await api(`/api/admin/videos/${id}`, { method: 'DELETE' })
+        loadVideos(true)
+        loadVideos(false)
+      } catch (error) {
+        alert(error.message)
+      }
+    }
+
+    // Contact Modal
+    function openContactModal(id = null) {
+      const isEdit = !!id
+      contactModalTitle.textContent = isEdit ? 'Modifier le contact' : 'Ajouter un contact'
+      contactForm.reset()
+      contactId.value = id || ''
+      contactActiveGroup.style.display = isEdit ? 'flex' : 'none'
+      
+      if (isEdit) {
+        api(`/api/admin/contacts`).then(({ contacts }) => {
+          const contact = contacts.find(c => c.id === id)
+          if (contact) {
+            contactType.value = contact.type
+            contactValue.value = contact.value
+            contactLabel.value = contact.label || ''
+            contactOrder.value = contact.display_order || 0
+            contactActive.checked = contact.is_active
+          }
+        })
+      }
+      show(contactModal)
+    }
+
+    closeContactModal.addEventListener('click', () => hide(contactModal))
+    openAddContactModal.addEventListener('click', () => openContactModal())
+
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const id = contactId.value
+      const data = {
+        type: contactType.value,
+        value: contactValue.value,
+        label: contactLabel.value,
+        display_order: parseInt(contactOrder.value) || 0
+      }
+      
+      if (id) data.is_active = contactActive.checked
+      
+      try {
+        if (id) {
+          await api(`/api/admin/contacts/${id}`, { method: 'PUT', body: JSON.stringify(data) })
+        } else {
+          await api('/api/admin/contacts', { method: 'POST', body: JSON.stringify(data) })
+        }
+        hide(contactModal)
+        loadContacts(true)
+        loadContacts(false)
+      } catch (error) {
+        alert(error.message)
+      }
+    })
+
+    async function deleteContact(id) {
+      if (!confirm('Supprimer ce contact ?')) return
+      try {
+        await api(`/api/admin/contacts/${id}`, { method: 'DELETE' })
+        loadContacts(true)
+        loadContacts(false)
+      } catch (error) {
+        alert(error.message)
+      }
+    }
+
+    // Video player close
+    closeVideoPlayer.addEventListener('click', () => {
+      hide(videoPlayerModal)
+      videoPlayer.pause()
+      videoPlayer.src = ''
+    })
+
+    // Close modals on backdrop click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) hide(modal)
+      })
+    })
+
+    // Helpers
+    function formatDuration(seconds) {
+      const mins = Math.floor(seconds / 60)
+      const secs = seconds % 60
+      return `${mins}:${secs.toString().padStart(2, '0')}`
+    }
+
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('fr-FR')
+    }
+
+    // Access site button (scroll to verification)
+    document.getElementById('accessSiteBtn').addEventListener('click', () => {
+      verificationSection.scrollIntoView({ behavior: 'smooth' })
+    })
+  </script>
+</body>
+</html>
