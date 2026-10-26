@@ -1,0 +1,23 @@
+{
+  "name": "formation-platform",
+  "version": "1.0.0",
+  "description": "Plateforme de formation travail en ligne",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "hono": "^4.0.0",
+    "bcryptjs": "^2.4.3",
+    "jose": "^5.2.0",
+    "otplib": "^12.0.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230000.0",
+    "wrangler": "^3.0.0",
+    "vitest": "^1.0.0"
+  }
+}
